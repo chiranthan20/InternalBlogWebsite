@@ -43,7 +43,8 @@ This repository contains Design of our Internal Blog Website. It contains code f
 11) Connection strings of Azure resources are stored securely in Key Vault. The application manifests reference these secrets, and during the CD pipeline run, the secrets are fetched from Key Vault and injected into the placeholders.
 12) Logging is enabled using log analytics agent on AKS, this help us to troubleshoot any possible issue. Also additionally we can set alerts based on the logs as well.
 
-**Deploy Infrastructure Pipeline: **
+**Deploy Infrastructure Pipeline:**
+
 Deploy infrastructure pipeline templates does the following, 
 1) Create terraform backend infra (Backend storage account, Resource group, storage container) to store state file.
 2) Terraform init inside infra working directory where our root terraform file exists.
@@ -55,7 +56,7 @@ Deploy infrastructure pipeline templates does the following,
    - aks module - aks, log analyics workspace
    - data_services - SQL server, SQL DB, Blob Storage account, Redis Cache, Private endpoints and Private DNS zones.
 
-** Application Workloads Development Lifecycle:**
+**Application Workloads Development Lifecycle:**
 
 
 <img width="916" height="513" alt="image" src="https://github.com/user-attachments/assets/544367aa-3b99-400a-b1b1-bf3dacc857bd" />
