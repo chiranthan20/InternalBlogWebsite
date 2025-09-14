@@ -40,16 +40,25 @@ This repository contains Design of our Internal Blog Website. It contains code f
 5) While App Gateway will handle TLS termination, WAF, and public DNS exposure. All traffic from App Gateway is forwarded to APIM (private or internal VNet integrated endpoint) which does the routing.
 6) Routing in APIM can be configured using below steps:
   - Create API and assign right backend for each of the APIs.
-  - Define Operation and Routing, like below
-     User API (App Service)
-     /user/login → forwards to /api/login in App Service
-     /user/register → forwards to /api/register
-     Blog API (AKS)
-     /blog/create → forwards to /api/create in AKS
-     /blog/approve → forwards to /api/approve
-     Chat API (VM)
-     /chat/send → forwards to /sendMessage on VM
-     /chat/history → forwards to /getHistory
+## API Management Routing
+
+The API Gateway (App Gateway + APIM) routes incoming requests to the appropriate backend service based on the path.  
+Each microservice has a dedicated API with its own set of operations.
+
+### User API (App Service)
+- `/user/login` → forwards to `/api/login` on **User Management App Service**
+- `/user/register` → forwards to `/api/register` on **User Management App Service**
+
+### Blog API (AKS)
+- `/blog/create` → forwards to `/api/create` on **AKS Blog Service**
+- `/blog/approve` → forwards to `/api/approve` on **AKS Blog Service**
+
+### Chat API (VM)
+- `/chat/send` → forwards to `/sendMessage` on **VM Chat Service**
+- `/chat/history` → forwards to `/getHistory` on **VM Chat Service**
+
+---
 7) Policies in APIM allow you to transform requests/responses, secure, and route more flexibly.
 8) Once the traffic reached the right workload it serves the api call accordingly, if required it reaches data services through secure ways like in approach1.
+
 
