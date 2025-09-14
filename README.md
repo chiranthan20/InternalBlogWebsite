@@ -82,4 +82,5 @@ Deploy infrastructure pipeline templates does the following,
 1) Use Managed Identity instead of connection strings. This eliminates the maintenance of secrets and its rotation.
 2) Log Analytics agent can be replaced with open source monitoring tool like openTelemetry which is free of cost and also platform independent.
 3) Move away from push based kuernetes deployment to pull based deployment (argoCD).
+4) Introduce APIM to handle developer/consumer APIs and can do auth, rate limit, caching.
  
