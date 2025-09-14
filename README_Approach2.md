@@ -38,8 +38,7 @@ This repository contains Design of our Internal Blog Website. It contains code f
    - Comments / Chat (C) → Virtual Machines (VMs): Chat workloads can be stateful with persistent connections (WebSockets, custom messaging).
 4) End-users access the application through a frontend public IP that is mapped to a custom DNS. The Application Gateway forwards traffic to the API Management service, which serves as the single entry point for workloads running in the different hosting platforms.
 5) While App Gateway will handle TLS termination, WAF, and public DNS exposure. All traffic from App Gateway is forwarded to APIM (private or internal VNet integrated endpoint) which does the routing.
-6) Routing in APIM can be configured using below steps:
-  - Create API and assign right backend for each of the APIs.
+
 ## API Management Routing
 
 The API Gateway (App Gateway + APIM) routes incoming requests to the appropriate backend service based on the path.  
@@ -56,9 +55,10 @@ Each microservice has a dedicated API with its own set of operations.
 ### Chat API (VM)
 - `/chat/send` → forwards to `/sendMessage` on **VM Chat Service**
 - `/chat/history` → forwards to `/getHistory` on **VM Chat Service**
-
+- Policies in APIM allow you to transform requests/responses, secure, and route more flexibly.
 ---
-7) Policies in APIM allow you to transform requests/responses, secure, and route more flexibly.
-8) Once the traffic reached the right workload it serves the api call accordingly, if required it reaches data services through secure ways like in approach1.
+
+6) Once the traffic reached the right workload it serves the api call accordingly, if required it reaches data services through secure ways like in approach1.
+
 
 
