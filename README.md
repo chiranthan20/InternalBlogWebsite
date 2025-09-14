@@ -22,7 +22,7 @@ This repository contains Design of our Internal Blog Website. It contains code f
 **System Design: (HLD)**
 1) The application infra is hosted across 3 Resource groups.
 2) RG1 contains network services including vnet, subnet, application gateway, publicIP, Network security group.
-3) RG2 contains AKS, aksnodes.
+3) RG2 contains AKS, aksnodes, log analytics.
 4) RG3 contains sql server, sql DB, storage account, keyvaut, redisCache, private endpoints for all the mentioned resources. etc
 5) The resources are secured with NSGs on each of the subnet.
    a) subnet 1: For App gateway
@@ -40,3 +40,5 @@ This repository contains Design of our Internal Blog Website. It contains code f
 12) During the intial phase where we have only 50 users, we can have fixed number of nodes of 1 for system Pool and 2 nodes for app Pool.
     During this phase we can check figure out CPU/memory metrics required to serve this load. Then we can start configuring clusterAuto scaled setting in which min_node count is set to 1 ad max can be set to 15. Also we can enable HPA based on cpu/memory metric in app manifest files.
 13) To increase security we can also use Manged identity in future.(Not included as part of this design). Here we are using connection strings which will be stored in keyVault. And App manifest files will contain references to these secrets. And during CD pipeline run the secrets are pulled and replace in place holder.
+14) Logging is enabled using log analytics agent on AKS, this help us to troubleshoot any possible issue. Also additionally we can set alerts based on the logs as well.
+15) In future we can start monitoring other azure reosurce as well. To reduce cost we can introduce some open source monitoring tools like opentelemetry.
