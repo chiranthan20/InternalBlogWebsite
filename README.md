@@ -20,10 +20,23 @@ This repository contains Design of our Internal Blog Website. It contains code f
 10) Redis Cache - To cache data to reduce latency.
 
 **System Design: (HLD)**
-1) Application Gateway serves as the secure entry point for end users. It not only routes traffic to the backend services but also functions as a Web Application Firewall (WAF), protecting the application by blocking malicious traffic. We will set OWASP standard rules. Once we test the application we can exclude some of the rules if required.
-2) The Application Gateway is configured with a frontend Public IP and secured using a Custom V2 SSL policy. The policy enforces strong cipher suites and sets the minimum TLS version to 1.2, in line with Microsoft’s security best practices. Also a TLS certificate needs to be attached with Custom Domain Name.
-3) The Application Gateway is integrated with the Virtual Network through a dedicated subnet, secured by a Network Security Group (NSG). The NSG acts as a traffic filter, allowing only required inbound and outbound traffic while blocking unauthorized access, thereby adding an extra layer of network-level security.
-4) The Application Gateway backend pool is connected to the AKS Ingress Load Balancer. Traffic reaching the cluster is then routed by the Ingress Controller based on path-based rules, ensuring requests are directed to the correct microservice.
-5) The AKS cluster is deployed with Linux node pools using D4as_v5 VM size and backed by Virtual Machine Scale Sets (VMSS) for high availability and autoscaling.Also the noodepool setting will be in autoscale mode with min 1 and Max 10 Nodes. 
-6) The cluster is connected to a dedicated subnet and a NSG within the same Virtual Network as the Application Gateway for secure and seamless communication. All internal service-to-service communication inside the cluster happens through ClusterIP, providing stable virtual IPs for workloads. Session affinity can be enabled to ensure that repeated client requests are routed to the same pod, which is essential for stateful applications.
-7) 
+1) The application infra is hosted across 3 Resource groups.
+2) RG1 contains network services including vnet, subnet, application gateway, publicIP, Network security group.
+3) RG2 contains AKS, aksnodes.
+4) RG3 contains sql server, sql DB, storage account, keyvaut, redisCache, private endpoints for all the mentioned resources. etc
+5) The resources are secured with NSGs on each of the subnet.
+   a) subnet 1: For App gateway
+   b) subnet 2: For Aks and its components.
+   c) subnet 3: For Data services like, sql server, storage account, redis.
+6) The endUser access application through frontend Public IP which is configured with custom DNS. Application gateway's backend is connected to Ingress of AKS resource.
+7) Based on the incoming request ingress routes the traffic to appropriate workload of AKS. Since AKS is also enabled with Vnet integration the APIs are never exposed to internet. The communication always occurs inside Vnet.
+8) There are 3 app workloads in AKS,
+     A) UserAuthentication
+     B) BlogCreation/Approval
+     C) Comments/Chat
+9) For storing user information, Blog text data, comments/chat data we have SQL server while the images/video are stored in blob storage.
+10) The data services are also integrated with vnet using private endpoints. So the communication between AKS and Data services is secured.
+11) We also have redis cache, the same endpoint should be used in application code to read/write data on data services.
+12) During the intial phase where we have only 50 users, we can have fixed number of nodes of 1 for system Pool and 2 nodes for app Pool.
+    During this phase we can check figure out CPU/memory metrics required to serve this load. Then we can start configuring clusterAuto scaled setting in which min_node count is set to 1 ad max can be set to 15. Also we can enable HPA based on cpu/memory metric in app manifest files.
+13) To increase security we can also use Manged identity in future.(Not included as part of this design). Here we are using connection strings which will be stored in keyVault. And App manifest files will contain references to these secrets. And during CD pipeline run the secrets are pulled and replace in place holder.
