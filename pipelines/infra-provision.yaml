@@ -1,0 +1,97 @@
+trigger: none
+
+parameters:
+  - name: DryRun
+    type: boolean
+    default: true   # user can override at runtime
+
+variables:
+  LOCATION: westeurope
+  BACKEND_RG: rg-terraform-state
+  BACKEND_SA: tfstateaccount123   # must be globally unique
+  BACKEND_CONTAINER: tfstate
+  STATE_FILE: infra.terraform.tfstate
+
+stages:
+  - stage: BackendResource
+    displayName: "Create Backend Resource"
+    jobs:
+      - job: create_backend
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: AzureCLI@2
+            displayName: "Create Backend Resources if Not Exists"
+            inputs:
+              azureSubscription: "<Service-Connection>"
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                set -e
+
+                echo "Ensuring resource group exists..."
+                az group create -n $BACKEND_RG -l $LOCATION
+
+                echo "Checking if storage account exists..."
+                if ! az storage account show -n $BACKEND_SA -g $BACKEND_RG >/dev/null 2>&1; then
+                  echo "Creating storage account $BACKEND_SA..."
+                  az storage account create \
+                    -n $BACKEND_SA \
+                    -g $BACKEND_RG \
+                    -l $LOCATION \
+                    --sku Standard_LRS
+                else
+                  echo "Storage account $BACKEND_SA already exists, skipping..."
+                fi
+
+                echo "Ensuring container exists..."
+                ACCOUNT_KEY=$(az storage account keys list -g $BACKEND_RG -n $BACKEND_SA --query "[0].value" -o tsv)
+
+                az storage container create --name $BACKEND_CONTAINER --account-name $BACKEND_SA  --account-key $ACCOUNT_KEY
+
+  - stage: Infra
+    displayName: "Provision Infrastructure"
+    dependsOn: BackendResource
+    jobs:
+      - job: terraform
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: AzureCLI@2
+            displayName: "Terraform Init"
+            inputs:
+              azureSubscription: "<Service-Connection>"
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                set -e
+                terraform init \
+                  -backend-config="resource_group_name=$BACKEND_RG" \
+                  -backend-config="storage_account_name=$BACKEND_SA" \
+                  -backend-config="container_name=$BACKEND_CONTAINER" \
+                  -backend-config="key=$STATE_FILE"
+
+          # Dry Run -> terraform plan only
+          - ${{ if eq(parameters.DryRun, true) }}:
+            - task: AzureCLI@2
+              displayName: "Terraform Plan (Dry Run)"
+              inputs:
+                azureSubscription: "Your-Service-Connection"
+                scriptType: bash
+                scriptLocation: inlineScript
+                inlineScript: |
+                  terraform plan
+                workingDirectory: infra
+
+          # Apply -> terraform apply
+          - ${{ if eq(parameters.DryRun, false) }}:
+            - task: AzureCLI@2
+              displayName: "Terraform Apply"
+              inputs:
+                azureSubscription: "Your-Service-Connection"
+                scriptType: bash
+                scriptLocation: inlineScript
+                inlineScript: |
+                  terraform plan -out=tfplan
+                  terraform apply -auto-approve tfplan
+                workingDirectory: infra
