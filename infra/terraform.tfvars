@@ -12,20 +12,20 @@ subnet_cidrs        = ["10.10.0.0/24", "10.10.1.0/24", "10.10.2.0/24"]
 
 nsg_names           = ["nsg-subnet-appgw", "nsg-subnet-aks", "nsg-subnet-data"]
 
-appgw_name          = "prod-appgw"
+appgw_name          = "blogapp-appgw"
 
-aks_name            = "prod-aks"
+aks_name            = "blogapp-aks"
 aks_node_count      = 3
 aks_node_size       = "Standard_D2s_v3"
 
-sql_server_name     = "prod-sql-srv-001"
+sql_server_name     = "blogapp-sql-srv-001"
 sql_administrator_login = "sqladminuser"
 sql_administrator_password = "S3cureP@ssw0rd!"
 
-storage_account_name = "prodstorageacc01"  # must be globally unique
-redis_name           = "prod-redis-01"
+storage_account_name = "blobstorageacc01"  # must be globally unique
+redis_name           = "blogapp-redis-01"
 
-keyvault_name        = "prod-keyvault-01"
+keyvault_name        = "blogapp-keyvault-01"
 
 tags = {
   project = "demo"

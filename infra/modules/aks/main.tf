@@ -1,3 +1,10 @@
+resource "azurerm_log_analytics_workspace" "la" {
+  name                = "${var.aks_name}-la"
+  location            = var.location
+  resource_group_name = var.resource_group
+  sku                 = "PerGB2018"
+}
+
 resource "azurerm_kubernetes_cluster" "aks" {
   name                = var.aks_name
   location            = var.location
@@ -29,6 +36,12 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   role_based_access_control {
     enabled = true
+  }
+  addon_profile {
+    oms_agent {
+      enabled                    = true
+      log_analytics_workspace_id = azurerm_log_analytics_workspace.la.id
+    }
   }
 
   tags = var.tags
