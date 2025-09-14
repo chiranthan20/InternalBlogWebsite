@@ -77,3 +77,9 @@ Deploy infrastructure pipeline templates does the following,
    - Compare Checksum from CI against registry to check integrity of the image
    - Deploy Manifest files using kubectl apply.
    - The manifest will contain latest Build number of image which will be pulled by AKS from ACR.
+
+** Improvements For V2:**
+1) Use Managed Identity instead of connection strings. This eliminates the maintenance of secrets and its rotation.
+2) Log Analytics agent can be replaced with open source monitoring tool like openTelemetry which is free of cost and also platform independent.
+3) Move away from push based kuernetes deployment to pull based deployment (argoCD).
+ 
