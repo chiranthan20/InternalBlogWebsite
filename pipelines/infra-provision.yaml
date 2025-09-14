@@ -14,7 +14,7 @@ variables:
 
 stages:
   - stage: BackendResource
-    displayName: "Create Backend Resource"
+    displayName: "Create Backend Resource for TFstate"
     jobs:
       - job: create_backend
         pool:
