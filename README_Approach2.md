@@ -41,14 +41,15 @@ This repository contains Design of our Internal Blog Website. It contains code f
 6) Routing in APIM can be configured using below steps:
   - Create API and assign right backend for each of the APIs.
   - Define Operation and Routing, like below
-      User API (App Service)
-      /user/login → forwards to /api/login in App Service
-      /user/register → forwards to /api/register
-      Blog API (AKS)
-      /blog/create → forwards to /api/create in AKS
-      /blog/approve → forwards to /api/approve
-      Chat API (VM)
-      /chat/send → forwards to /sendMessage on VM
-      /chat/history → forwards to /getHistory
+     User API (App Service)
+     /user/login → forwards to /api/login in App Service
+     /user/register → forwards to /api/register
+     Blog API (AKS)
+     /blog/create → forwards to /api/create in AKS
+     /blog/approve → forwards to /api/approve
+     Chat API (VM)
+     /chat/send → forwards to /sendMessage on VM
+     /chat/history → forwards to /getHistory
 7) Policies in APIM allow you to transform requests/responses, secure, and route more flexibly.
 8) Once the traffic reached the right workload it serves the api call accordingly, if required it reaches data services through secure ways like in approach1.
+
